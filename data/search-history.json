@@ -1,0 +1,25 @@
+{
+  "searches": [
+    {
+      "id": "2025-08-30_product-designer_16-08-55",
+      "searchTerm": "product designer",
+      "timestamp": "2025-08-30T16:08:55.957Z",
+      "resultCount": 65,
+      "filePath": "searches/2025-08-30_product-designer_16-08-55.json"
+    },
+    {
+      "id": "2025-08-30_web-designer_16-00-26",
+      "searchTerm": "web designer",
+      "timestamp": "2025-08-30T16:00:26.558Z",
+      "resultCount": 21,
+      "filePath": "searches/2025-08-30_web-designer_16-00-26.json"
+    },
+    {
+      "id": "2025-08-30_ui-designer_15-59-33",
+      "searchTerm": "ui designer",
+      "timestamp": "2025-08-30T15:59:33.028Z",
+      "resultCount": 34,
+      "filePath": "searches/2025-08-30_ui-designer_15-59-33.json"
+    }
+  ]
+}

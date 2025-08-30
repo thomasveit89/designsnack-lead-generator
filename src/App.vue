@@ -1,0 +1,579 @@
+<template>
+  <div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <span class="text-white font-bold text-sm">DS</span>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">DESIGNSNACK</h1>
+              <p class="text-sm text-gray-500">Lead Generator</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-sm text-gray-600">UX/UI Design Subscriptions</p>
+            <p class="text-xs text-gray-400">Find your next design client</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Search Section -->
+      <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Search for Design Leads</h2>
+        
+        <div class="flex gap-4 search-container">
+          <div class="flex-1 relative">
+            <input
+              v-model="searchTerm"
+              @keyup.enter="searchJobs"
+              @focus="showHistory = true"
+              type="text"
+              placeholder="Enter search term (e.g. 'ux designer', 'ui developer')"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              :disabled="isLoading"
+            />
+            
+            <!-- Search History Dropdown -->
+            <div v-if="showHistory" class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-80 overflow-hidden backdrop-blur-sm"
+                 style="z-index: 9999;">
+              <!-- Header -->
+              <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-3 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-sm font-semibold text-gray-900">Search History</h3>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                      {{ searchHistory.length }}
+                    </span>
+                  </div>
+                  <button @click="showHistory = false" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Content -->
+              <div class="max-h-64 overflow-y-auto">
+                <div v-if="searchHistory.length === 0" class="px-4 py-8 text-center">
+                  <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                  <p class="text-sm text-gray-500 mb-1">No search history yet</p>
+                  <p class="text-xs text-gray-400">Your recent searches will appear here</p>
+                </div>
+                <div v-else class="py-2">
+                  <button
+                    v-for="(search, index) in searchHistory.slice(0, 10)"
+                    :key="search.id"
+                    @click="loadPreviousSearch(search.id)"
+                    class="w-full px-4 py-3 text-left hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200 group border-b border-gray-50 last:border-b-0"
+                  >
+                    <div class="flex items-center gap-3">
+                      <!-- Search Icon -->
+                      <div class="flex-shrink-0 w-8 h-8 bg-gray-100 group-hover:bg-purple-100 rounded-lg flex items-center justify-center transition-colors">
+                        <svg class="w-4 h-4 text-gray-500 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                      </div>
+                      
+                      <!-- Content -->
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate group-hover:text-purple-900">{{ search.searchTerm }}</p>
+                        <div class="flex items-center gap-3 mt-1">
+                          <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            {{ search.resultCount }} results
+                          </span>
+                          <span class="text-xs text-gray-400">{{ formatTimestamp(search.timestamp) }}</span>
+                        </div>
+                      </div>
+                      
+                      <!-- Arrow -->
+                      <div class="flex-shrink-0">
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Footer -->
+              <div v-if="searchHistory.length > 10" class="bg-gray-50 px-4 py-2 text-center border-t border-gray-100">
+                <p class="text-xs text-gray-500">Showing 10 of {{ searchHistory.length }} searches</p>
+              </div>
+            </div>
+          </div>
+          <button
+            @click="toggleHistory"
+            class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+            :disabled="isLoading"
+            title="Search History"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </button>
+          <button
+            @click="searchJobs"
+            :disabled="isLoading || !searchTerm.trim()"
+            class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-lg hover:from-purple-600 hover:to-pink-600 focus:ring-4 focus:ring-purple-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {{ isLoading ? 'Searching...' : 'Search Jobs' }}
+          </button>
+        </div>
+
+        <div class="mt-3 flex flex-wrap gap-2">
+          <span class="text-sm text-gray-600">Popular searches:</span>
+          <button
+            v-for="term in popularSearches"
+            :key="term"
+            @click="searchTerm = term; searchJobs()"
+            class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 transition-colors"
+            :disabled="isLoading"
+          >
+            {{ term }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading Animation -->
+      <div v-if="isLoading" class="bg-white rounded-lg shadow-sm border p-8 text-center mb-8">
+        <div class="inline-flex items-center space-x-2">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+          <span class="text-lg font-medium text-gray-700">{{ loadingMessage }}</span>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">This may take 30-60 seconds...</p>
+        <div class="mt-4 bg-gray-200 rounded-full h-2">
+          <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full animate-pulse" :style="`width: ${loadingProgress}%`"></div>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div v-if="jobs.length > 0 && !isLoading">
+        <!-- Results Header -->
+        <div class="bg-white rounded-lg shadow-sm border p-4 mb-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">
+                Found {{ jobs.length }} jobs for "{{ lastSearchTerm }}"
+              </h3>
+              <p class="text-sm text-gray-600">
+                🔥 {{ hotnessStats.hot }} Hot leads • 🟡 {{ hotnessStats.warm }} Warm leads • 🧊 {{ hotnessStats.cold }} Cold leads
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-gray-500">Sorted by lead quality</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Cards -->
+        <div class="grid gap-4">
+          <div
+            v-for="job in sortedJobs"
+            :key="job.id + job.scrapedAt"
+            class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow p-6"
+          >
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="text-2xl">{{ job.hotnessEmoji }}</span>
+                  <div>
+                    <h4 class="text-lg font-semibold text-gray-900 hover:text-purple-600">
+                      <a :href="job.url" target="_blank" rel="noopener" class="hover:underline">
+                        {{ job.title }}
+                      </a>
+                    </h4>
+                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                      <span v-if="job.company" class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-2m-16 0h2m0 0V9a2 2 0 012-2h2m8 0V7a2 2 0 012-2h4a2 2 0 012 2v2m0 0v10a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"></path>
+                        </svg>
+                        {{ job.company }}
+                      </span>
+                      <span v-if="job.location" class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        {{ job.location }}
+                      </span>
+                      <span v-if="job.workload" class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {{ job.workload }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="text-right ml-4">
+                <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                     :class="getHotnessClass(job.hotnessLevel)">
+                  {{ job.hotnessEmoji }} {{ job.hotnessLevel }}
+                </div>
+                <p class="text-xs text-gray-500 mt-1">{{ job.hotnessScore }} points</p>
+              </div>
+            </div>
+
+            <!-- Remove redundant description since we show company/location/workload in header -->
+
+            <div class="flex items-center justify-between">
+              <div class="flex gap-2">
+                <span v-for="reason in job.hotnessReasons" :key="reason" 
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  {{ reason }}
+                </span>
+              </div>
+              
+              <div class="flex gap-2">
+                <a
+                  :href="job.url"
+                  target="_blank"
+                  rel="noopener"
+                  class="inline-flex items-center px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+                >
+                  View Job
+                  <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Results -->
+      <div v-if="searchAttempted && jobs.length === 0 && !isLoading" class="bg-white rounded-lg shadow-sm border p-8 text-center">
+        <div class="text-gray-400 mb-4">
+          <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
+        <p class="text-gray-600 mb-4">Try a different search term or check the spelling.</p>
+        <button
+          @click="searchTerm = ''; jobs = []; searchAttempted = false"
+          class="inline-flex items-center px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    </main>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App',
+  data() {
+    return {
+      searchTerm: '',
+      lastSearchTerm: '',
+      currentSearchId: null,
+      jobs: [],
+      isLoading: false,
+      searchAttempted: false,
+      loadingMessage: 'Initializing scraper...',
+      loadingProgress: 0,
+      searchHistory: [],
+      showHistory: false,
+      popularSearches: [
+        'ux designer',
+        'ui designer',
+        'product designer',
+        'frontend developer',
+        'web designer',
+        'graphic designer'
+      ]
+    }
+  },
+  computed: {
+    sortedJobs() {
+      return [...this.jobs]
+        .sort((a, b) => b.hotnessScore - a.hotnessScore)
+    },
+    hotnessStats() {
+      const stats = { hot: 0, warm: 0, cold: 0 }
+      this.jobs.forEach(job => {
+        stats[job.hotnessLevel]++
+      })
+      return stats
+    }
+  },
+  methods: {
+    async searchJobs() {
+      if (!this.searchTerm.trim() || this.isLoading) return
+      
+      this.isLoading = true
+      this.jobs = []
+      this.searchAttempted = true
+      this.lastSearchTerm = this.searchTerm.trim()
+      this.loadingProgress = 0
+      this.loadingMessage = 'Starting job search...'
+      
+      // Simulate loading progress
+      const progressInterval = setInterval(() => {
+        if (this.loadingProgress < 90) {
+          this.loadingProgress += Math.random() * 10
+          if (this.loadingProgress < 30) {
+            this.loadingMessage = 'Navigating to jobs.ch...'
+          } else if (this.loadingProgress < 60) {
+            this.loadingMessage = 'Scraping job listings...'
+          } else if (this.loadingProgress < 90) {
+            this.loadingMessage = 'Processing results...'
+          }
+        }
+      }, 1000)
+      
+      try {
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            searchTerm: this.searchTerm.trim()
+          })
+        })
+        
+        clearInterval(progressInterval)
+        this.loadingProgress = 100
+        this.loadingMessage = 'Calculating lead scores...'
+        
+        if (!response.ok) {
+          throw new Error('Search failed')
+        }
+        
+        const data = await response.json()
+        
+        // Add hotness scoring to each job
+        this.jobs = data.jobs.map(job => this.calculateHotness(job))
+        this.currentSearchId = data.searchId
+        
+        // Refresh search history
+        await this.loadSearchHistory()
+        
+        setTimeout(() => {
+          this.isLoading = false
+        }, 500)
+        
+      } catch (error) {
+        console.error('Search error:', error)
+        clearInterval(progressInterval)
+        this.isLoading = false
+        // Show error state - you could add error handling UI here
+      }
+    },
+    
+    calculateHotness(job) {
+      let score = 0
+      const reasons = []
+      const title = job.title.toLowerCase()
+      const description = (job.description || '').toLowerCase()
+      const company = (job.company || '').toLowerCase()
+      
+      // UX/UI Design roles - perfect match
+      if (title.includes('ux') || title.includes('ui') || title.includes('user experience') || title.includes('user interface')) {
+        score += 8
+        reasons.push('UX/UI Role')
+      }
+      
+      // Design-related roles
+      if (title.includes('design') || title.includes('designer')) {
+        score += 6
+        reasons.push('Design Role')
+      }
+      
+      // Frontend/Product roles that often need design support
+      if (title.includes('frontend') || title.includes('front-end') || title.includes('product')) {
+        score += 4
+        reasons.push('Frontend/Product')
+      }
+      
+      // Contractor/Freelance indicators
+      if (title.includes('contractor') || title.includes('freelance') || title.includes('consultant') || 
+          description.includes('contract') || description.includes('freelance')) {
+        score += 6
+        reasons.push('Contractor Role')
+      }
+      
+      // Small company/startup indicators
+      if (company.includes('startup') || company.includes('gmbh') || company.includes('ag') || 
+          job.workload?.includes('80') || job.workload?.includes('50')) {
+        score += 3
+        reasons.push('Small Company')
+      }
+      
+      // Remote/Hybrid work
+      if (title.includes('remote') || title.includes('hybrid') || description.includes('remote') || description.includes('hybrid')) {
+        score += 2
+        reasons.push('Remote/Hybrid')
+      }
+      
+      // Recent postings (you'd need to implement date parsing)
+      if (description.includes('days ago') || description.includes('week') || description.includes('new')) {
+        score += 3
+        reasons.push('Recent Posting')
+      }
+      
+      // Determine hotness level and emoji
+      let hotnessLevel, hotnessEmoji
+      if (score >= 8) {
+        hotnessLevel = 'hot'
+        hotnessEmoji = '🔥'
+      } else if (score >= 4) {
+        hotnessLevel = 'warm' 
+        hotnessEmoji = '🟡'
+      } else {
+        hotnessLevel = 'cold'
+        hotnessEmoji = '🧊'
+      }
+      
+      return {
+        ...job,
+        hotnessScore: score,
+        hotnessLevel,
+        hotnessEmoji,
+        hotnessReasons: reasons
+      }
+    },
+    
+    getHotnessClass(level) {
+      switch (level) {
+        case 'hot':
+          return 'bg-red-100 text-red-800'
+        case 'warm':
+          return 'bg-yellow-100 text-yellow-800'
+        case 'cold':
+          return 'bg-blue-100 text-blue-800'
+        default:
+          return 'bg-gray-100 text-gray-800'
+      }
+    },
+    
+    toggleHistory() {
+      this.showHistory = !this.showHistory
+      console.log('History toggled, showHistory:', this.showHistory)
+      if (this.showHistory) {
+        // Refresh search history when opening
+        this.loadSearchHistory()
+      }
+    },
+    
+    async loadSearchHistory() {
+      try {
+        console.log('Loading search history...')
+        const response = await fetch('/api/search-history')
+        if (response.ok) {
+          const data = await response.json()
+          this.searchHistory = data.searches || []
+          console.log('Loaded search history:', this.searchHistory.length, 'items')
+        } else {
+          console.error('Failed to load search history:', response.status)
+          this.searchHistory = []
+        }
+      } catch (error) {
+        console.error('Error loading search history:', error)
+        this.searchHistory = []
+      }
+    },
+    
+    async loadPreviousSearch(searchId) {
+      this.isLoading = true
+      this.showHistory = false
+      
+      try {
+        const response = await fetch(`/api/search/${searchId}`)
+        if (response.ok) {
+          const data = await response.json()
+          
+          // Load the previous search data
+          this.jobs = data.jobs.map(job => this.calculateHotness(job))
+          this.lastSearchTerm = data.searchTerm
+          this.currentSearchId = data.id
+          this.searchAttempted = true
+          
+        } else {
+          throw new Error('Failed to load previous search')
+        }
+      } catch (error) {
+        console.error('Error loading previous search:', error)
+      } finally {
+        this.isLoading = false
+      }
+    },
+    
+    formatTimestamp(timestamp) {
+      const date = new Date(timestamp)
+      const now = new Date()
+      const diffMs = now - date
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+      const diffDays = Math.floor(diffHours / 24)
+      
+      if (diffHours < 1) return 'Just now'
+      if (diffHours < 24) return `${diffHours}h ago`
+      if (diffDays < 7) return `${diffDays}d ago`
+      return date.toLocaleDateString()
+    },
+    
+    formatDescription(description) {
+      if (!description) return []
+      
+      // Split by bullet points and clean up
+      return description
+        .split('•')
+        .map(part => part.trim())
+        .filter(part => part.length > 0)
+        .map(part => {
+          // Clean up common patterns
+          return part
+            .replace(/^(Place of work|Workload|Contract type):\s*/, '')
+            .replace(/Last (week|month|quarter|year)\s*/i, '')
+            .replace(/\d+\s+(days?|weeks?|months?)\s+ago\s*/i, '')
+            .trim()
+        })
+        .filter(part => part.length > 0)
+        .slice(0, 4) // Limit to 4 main points
+    }
+  },
+  
+  async mounted() {
+    // Load search history when component mounts
+    await this.loadSearchHistory()
+    
+    // Close history dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      // Don't close if clicking on the search input area or history button
+      if (!e.target.closest('.search-container')) {
+        this.showHistory = false
+      }
+    })
+  }
+}
+</script>
+
+<style>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
