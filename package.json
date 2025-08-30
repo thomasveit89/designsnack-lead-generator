@@ -20,7 +20,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "node server.js",
-    "start": "concurrently \"npm run server\" \"npm run dev\"",
+    "start": "node server.js",
+    "dev-local": "concurrently \"npm run server\" \"npm run dev\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
