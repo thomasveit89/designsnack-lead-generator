@@ -9,11 +9,54 @@ class JobsChScraper {
 
     async init() {
         try {
-            this.browser = await puppeteer.launch({
-                headless: false, // Set to true for production
-                defaultViewport: null,
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
+            // Production-ready Puppeteer configuration
+            const launchOptions = {
+                headless: 'new', // Use new headless mode
+                defaultViewport: { width: 1366, height: 768 },
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-accelerated-2d-canvas',
+                    '--disable-gpu',
+                    '--disable-extensions',
+                    '--disable-plugins',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--window-size=1366,768',
+                    '--single-process',
+                    '--no-zygote'
+                ]
+            };
+
+            // Use system Chromium in production if available
+            if (process.env.NODE_ENV === 'production') {
+                // Try to find system Chromium
+                const fs = await import('fs');
+                const possiblePaths = [
+                    '/usr/bin/chromium-browser',
+                    '/usr/bin/chromium',
+                    '/usr/bin/google-chrome',
+                    '/nix/store/*/bin/chromium'
+                ];
+                
+                for (const path of possiblePaths) {
+                    try {
+                        if (path.includes('*')) {
+                            // Skip wildcard paths for now - let Puppeteer use bundled Chrome
+                            continue;
+                        }
+                        await fs.promises.access(path);
+                        launchOptions.executablePath = path;
+                        console.log(`Using system browser at: ${path}`);
+                        break;
+                    } catch (e) {
+                        // Path doesn't exist, try next one
+                    }
+                }
+            }
+
+            this.browser = await puppeteer.launch(launchOptions);
 
             this.page = await this.browser.newPage();
 

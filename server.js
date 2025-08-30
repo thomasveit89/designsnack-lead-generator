@@ -39,10 +39,13 @@ app.post('/api/search', async (req, res) => {
         const startTime = Date.now();
         
         const scraper = new JobsChScraper();
+        console.log('API: Initializing scraper...');
         await scraper.init();
+        console.log('API: Scraper initialized successfully');
         
         try {
-            // Scrape jobs with pagination support
+            // Scrape jobs with pagination support  
+            console.log('API: Starting job scraping...');
             const jobs = await scraper.scrapeJobs(searchTerm.trim(), 10); // Allow up to 10 pages
             
             console.log(`API: Found ${jobs.length} jobs for "${searchTerm}"`);
@@ -68,9 +71,11 @@ app.post('/api/search', async (req, res) => {
         
     } catch (error) {
         console.error('API Error:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({ 
             error: 'Failed to search jobs', 
-            details: error.message 
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });
