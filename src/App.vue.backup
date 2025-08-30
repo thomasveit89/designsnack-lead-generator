@@ -285,40 +285,17 @@
           Try Again
         </button>
       </div>
-    </main>
-    
-    <!-- Contact Discovery Modal -->
-    <div v-if="showContactModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      
+      <!-- Contact Discovery Modal -->
+      <div v-if="showContactModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
           <!-- Modal Header -->
           <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <!-- Back Button (only show when viewing email) -->
-                <button 
-                  v-if="showEmailDraft"
-                  @click="goBackToContacts"
-                  class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                  </svg>
-                  Back
-                </button>
-                
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900">
-                    {{ showEmailDraft ? 'Draft Email' : isGeneratingEmail ? 'Generating Email...' : 'Find Contacts' }}
-                  </h3>
-                  <p class="text-sm text-gray-600">
-                    {{ showEmailDraft && selectedContact ? 
-                        `${selectedContact.firstName} ${selectedContact.lastName} • ${selectedJob?.company}` : 
-                        selectedJob?.company 
-                    }}
-                  </p>
-                </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Find Contacts</h3>
+                <p class="text-sm text-gray-600">{{ selectedJob?.company }}</p>
               </div>
-              
               <button 
                 @click="closeContactModal"
                 class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-2 transition-colors"
@@ -332,64 +309,8 @@
           
           <!-- Modal Content -->
           <div class="p-6 max-h-[70vh] overflow-y-auto">
-            <!-- Email Generation Loading State -->
-            <div v-if="isGeneratingEmail" class="text-center py-12">
-              <div class="inline-flex items-center space-x-3 mb-4">
-                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500"></div>
-                <span class="text-lg font-medium text-gray-700">Generating personalized email...</span>
-              </div>
-              <p class="text-sm text-gray-500 mb-6">This may take 10-15 seconds...</p>
-              
-              <!-- Contact info being processed -->
-              <div class="bg-gray-50 rounded-lg p-4 max-w-sm mx-auto">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
-                    <span class="text-sm font-semibold text-purple-700">
-                      {{ (selectedContact?.firstName || selectedContact?.email || '').charAt(0).toUpperCase() }}
-                    </span>
-                  </div>
-                  <div class="text-left">
-                    <p class="font-medium text-gray-900">{{ selectedContact?.firstName }} {{ selectedContact?.lastName }}</p>
-                    <p class="text-sm text-gray-600">{{ selectedContact?.position }}</p>
-                    <p class="text-xs text-gray-500">{{ selectedContact?.email }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Email Draft View -->
-            <div v-else-if="showEmailDraft && generatedEmail" class="">
-              <div class="bg-gray-50 rounded-lg p-6 mb-6">
-                <pre class="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed font-sans">{{ generatedEmail }}</pre>
-              </div>
-              
-              <div class="flex justify-end gap-3">
-                <button 
-                  @click="copyToClipboard(generatedEmail)"
-                  class="px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg transition-all"
-                >
-                  Copy Email
-                </button>
-              </div>
-            </div>
-            
-            <!-- Email Generation Error -->
-            <div v-else-if="emailError" class="text-center py-8">
-              <svg class="w-16 h-16 text-red-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-              </svg>
-              <h4 class="text-lg font-medium text-gray-900 mb-2">Failed to Generate Email</h4>
-              <p class="text-gray-600 text-sm mb-4">{{ emailError }}</p>
-              <button 
-                @click="goBackToContacts"
-                class="px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
-              >
-                Back to Contacts
-              </button>
-            </div>
-            
-            <!-- Contact Discovery Loading State -->
-            <div v-else-if="isLoadingContacts" class="text-center py-8">
+            <!-- Loading State -->
+            <div v-if="isLoadingContacts" class="text-center py-8">
               <div class="inline-flex items-center space-x-3">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
                 <span class="text-lg font-medium text-gray-700">Finding contacts...</span>
@@ -397,7 +318,7 @@
               <p class="text-sm text-gray-500 mt-2">This may take a few seconds...</p>
             </div>
             
-            <!-- Contact Discovery Error State -->
+            <!-- Error State -->
             <div v-else-if="contactError" class="text-center py-8">
               <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -482,10 +403,54 @@
                 </div>
               </div>
             </div>
+            
+            <!-- Email Draft Interface -->
+            <div v-if="showEmailDraft && generatedEmail" class="mt-6 border-t border-gray-200 pt-6">
+              <div class="mb-4">
+                <h4 class="text-sm font-semibold text-gray-900 mb-2">Generated Email for {{ selectedContact?.firstName }} {{ selectedContact?.lastName }}</h4>
+                <p class="text-xs text-gray-600">{{ selectedContact?.email }} • {{ selectedContact?.position }}</p>
+              </div>
+              
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <pre class="whitespace-pre-wrap text-sm text-gray-800 font-mono leading-relaxed">{{ generatedEmail }}</pre>
+              </div>
+              
+              <div class="flex justify-end gap-3">
+                <button 
+                  @click="showEmailDraft = false; generatedEmail = null"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Back to Contacts
+                </button>
+                <button 
+                  @click="copyToClipboard(generatedEmail)"
+                  class="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg transition-all"
+                >
+                  Copy Email
+                </button>
+              </div>
+            </div>
+            
+            <!-- Email Generation Error -->
+            <div v-else-if="emailError" class="mt-6 border-t border-gray-200 pt-6">
+              <div class="text-center py-4">
+                <svg class="w-12 h-12 text-red-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <h4 class="text-lg font-medium text-gray-900 mb-2">Failed to Generate Email</h4>
+                <p class="text-gray-600 text-sm">{{ emailError }}</p>
+                <button 
+                  @click="emailError = null"
+                  class="mt-3 px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
           </div>
           
-          <!-- Modal Footer (only show for contact list) -->
-          <div v-if="!showEmailDraft && !isGeneratingEmail && !emailError && contacts.length > 0" class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+          <!-- Modal Footer -->
+          <div v-if="!showEmailDraft && contacts.length > 0" class="bg-gray-50 px-6 py-4 border-t border-gray-200">
             <div class="flex justify-end">
               <button 
                 @click="closeContactModal"
@@ -497,7 +462,7 @@
           </div>
         </div>
       </div>
-    <!-- End of Contact Modal -->
+    </main>
   </div>
 </template>
 
@@ -846,14 +811,6 @@ export default {
       } finally {
         this.isGeneratingEmail = false
       }
-    },
-    
-    goBackToContacts() {
-      this.showEmailDraft = false
-      this.generatedEmail = null
-      this.emailError = null
-      this.selectedContact = null
-      this.isGeneratingEmail = false
     },
     
     async copyToClipboard(text) {

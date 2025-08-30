@@ -2,8 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 import JobsChScraper from './scraper.js';
 import { saveSearchResults, getSearchHistory, getSearchById } from './storage.js';
+import { findJobContacts } from './contact-service.js';
+import { generatePersonalizedEmail } from './email-service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -89,6 +95,62 @@ app.get('/api/search/:id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching search:', error);
         res.status(404).json({ error: 'Search not found' });
+    }
+});
+
+// Find contacts for a specific job
+app.post('/api/find-contacts', async (req, res) => {
+    try {
+        const { job, searchTerm } = req.body;
+        
+        if (!job || !job.company) {
+            return res.status(400).json({ error: 'Job and company information required' });
+        }
+        
+        console.log(`API: Finding contacts for ${job.company}`);
+        
+        const contactResults = await findJobContacts(job, searchTerm || '');
+        
+        console.log(`API: Found ${contactResults.contacts.length} contacts for ${job.company}`);
+        
+        res.json(contactResults);
+        
+    } catch (error) {
+        console.error('API Error finding contacts:', error);
+        res.status(500).json({ 
+            error: 'Failed to find contacts', 
+            details: error.message 
+        });
+    }
+});
+
+// Generate personalized email for a contact
+app.post('/api/generate-email', async (req, res) => {
+    try {
+        const { job, contact, searchTerm } = req.body;
+        
+        if (!job || !contact) {
+            return res.status(400).json({ error: 'Job and contact information required' });
+        }
+        
+        console.log(`API: Generating email for ${contact.firstName} ${contact.lastName} at ${job.company}`);
+        
+        const emailResult = await generatePersonalizedEmail(job, contact, searchTerm || '');
+        
+        if (emailResult.success) {
+            console.log(`API: Successfully generated email for ${contact.firstName} ${contact.lastName}`);
+        } else {
+            console.log(`API: Failed to generate email: ${emailResult.error}`);
+        }
+        
+        res.json(emailResult);
+        
+    } catch (error) {
+        console.error('API Error generating email:', error);
+        res.status(500).json({ 
+            error: 'Failed to generate email', 
+            details: error.message 
+        });
     }
 });
 

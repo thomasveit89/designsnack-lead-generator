@@ -1,0 +1,79 @@
+{
+  "cacheKey": "deloitteag_acmorg",
+  "company": "Deloitte AG",
+  "domain": "acm.org",
+  "searchTerm": "product designer",
+  "timestamp": "2025-08-30T17:22:14.884Z",
+  "expiresAt": "2025-09-06T17:22:14.884Z",
+  "contactResults": {
+    "contacts": [
+      {
+        "email": "isabellaprince@acm.org",
+        "firstName": "Isabella",
+        "lastName": "Prince",
+        "position": "Vice President",
+        "department": "executive",
+        "score": 8
+      },
+      {
+        "email": "aarihant@acm.org",
+        "firstName": "Aryan",
+        "lastName": "Arihant",
+        "position": "President",
+        "department": "executive",
+        "score": 8
+      },
+      {
+        "email": "asadali@acm.org",
+        "firstName": "Asad",
+        "lastName": "Ali",
+        "position": "Deputy Director of Information Technology",
+        "department": "it",
+        "score": 6
+      },
+      {
+        "email": "hltaief@acm.org",
+        "firstName": "Hatem",
+        "lastName": "Ltaief",
+        "position": "Editor in Chief",
+        "department": "communication",
+        "score": 6
+      },
+      {
+        "email": "acozzi@acm.org",
+        "firstName": "Ashley",
+        "lastName": "Cozzi",
+        "position": "Associate Director of Operations",
+        "department": "operations",
+        "score": 6
+      },
+      {
+        "email": "sgarg@acm.org",
+        "firstName": "Srikunj",
+        "lastName": "Garg",
+        "position": "Technical Director",
+        "department": "management",
+        "score": 6
+      },
+      {
+        "email": "vhawale@acm.org",
+        "firstName": "Vaibhav",
+        "lastName": "Hawale",
+        "position": "Head of Public Relations",
+        "department": "communication",
+        "score": 6
+      },
+      {
+        "email": "saggarwal@acm.org",
+        "firstName": "Sonal",
+        "lastName": "Aggarwal",
+        "position": "Public Relations Manager",
+        "department": "communication",
+        "score": 5
+      }
+    ],
+    "domain": "acm.org",
+    "confidence": "high",
+    "totalFound": 10
+  }
+}
