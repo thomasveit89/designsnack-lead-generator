@@ -29,31 +29,11 @@ class JobsChScraper {
                 ]
             };
 
-            // Use system Chromium in production if available
+            // Log browser info for debugging
             if (process.env.NODE_ENV === 'production') {
-                // Try to find system Chromium
-                const fs = await import('fs');
-                const possiblePaths = [
-                    '/usr/bin/chromium-browser',
-                    '/usr/bin/chromium',
-                    '/usr/bin/google-chrome',
-                    '/nix/store/*/bin/chromium'
-                ];
-                
-                for (const path of possiblePaths) {
-                    try {
-                        if (path.includes('*')) {
-                            // Skip wildcard paths for now - let Puppeteer use bundled Chrome
-                            continue;
-                        }
-                        await fs.promises.access(path);
-                        launchOptions.executablePath = path;
-                        console.log(`Using system browser at: ${path}`);
-                        break;
-                    } catch (e) {
-                        // Path doesn't exist, try next one
-                    }
-                }
+                console.log('Production mode: Using Puppeteer bundled Chromium');
+            } else {
+                console.log('Development mode: Using Puppeteer bundled Chromium');
             }
 
             this.browser = await puppeteer.launch(launchOptions);
