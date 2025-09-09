@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
-  base: '/smart-lead-gemenrator/',
+  base: '/designsnack-lead-generator/',
   server: {
     port: 3000,
     host: true,

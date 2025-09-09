@@ -1,6 +1,13 @@
 {
   "searches": [
     {
+      "id": "2025-09-09_ui-designer_16-52-59",
+      "searchTerm": "ui designer",
+      "timestamp": "2025-09-09T16:52:59.176Z",
+      "resultCount": 25,
+      "filePath": "searches/2025-09-09_ui-designer_16-52-59.json"
+    },
+    {
       "id": "2025-08-30_product-designer_16-08-55",
       "searchTerm": "product designer",
       "timestamp": "2025-08-30T16:08:55.957Z",
