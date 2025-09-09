@@ -498,6 +498,73 @@
         </div>
       </div>
     <!-- End of Contact Modal -->
+    
+    <!-- Hackathon Notice Modal -->
+    <div v-if="showHackathonModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style="z-index: 10000;">
+      <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <span class="text-white font-bold text-lg">🚀</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">Hackathon Demo</h3>
+              <p class="text-sm text-gray-600">Live scraping is disabled</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-6">
+          <p class="text-gray-700 mb-4">
+            Sorry! We've disabled the live scraping functionality after the hackathon to keep costs down.
+          </p>
+          <p class="text-gray-600 text-sm mb-6">
+            But you can still explore the app by browsing one of our previous search results below! 👇
+          </p>
+          
+          <!-- Search History Preview -->
+          <div v-if="searchHistory.length > 0" class="space-y-2 max-h-48 overflow-y-auto">
+            <p class="text-sm font-medium text-gray-900 mb-3">Try one of these previous searches:</p>
+            <button
+              v-for="search in searchHistory.slice(0, 5)"
+              :key="search.id"
+              @click="loadPreviousSearchFromModal(search.id)"
+              class="w-full text-left p-3 bg-gray-50 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 rounded-lg transition-all border border-gray-200 hover:border-purple-200"
+            >
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">{{ search.searchTerm }}</p>
+                  <p class="text-xs text-gray-500">{{ search.resultCount }} results • {{ formatTimestamp(search.timestamp) }}</p>
+                </div>
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </div>
+            </button>
+          </div>
+          
+          <div v-else class="text-center py-4">
+            <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <p class="text-sm text-gray-500">No search history available</p>
+          </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+          <button 
+            @click="closeHackathonModal"
+            class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Got it!
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- End of Hackathon Modal -->
   </div>
 </template>
 
@@ -529,6 +596,8 @@ export default {
       generatedEmail: null,
       emailError: null,
       showEmailDraft: false,
+      // Hackathon modal
+      showHackathonModal: false,
       popularSearches: [
         'ux designer',
         'ui designer',
@@ -556,65 +625,8 @@ export default {
     async searchJobs() {
       if (!this.searchTerm.trim() || this.isLoading) return
       
-      this.isLoading = true
-      this.jobs = []
-      this.searchAttempted = true
-      this.lastSearchTerm = this.searchTerm.trim()
-      this.loadingProgress = 0
-      this.loadingMessage = 'Starting job search...'
-      
-      // Simulate loading progress
-      const progressInterval = setInterval(() => {
-        if (this.loadingProgress < 90) {
-          this.loadingProgress += Math.random() * 10
-          if (this.loadingProgress < 30) {
-            this.loadingMessage = 'Navigating to jobs.ch...'
-          } else if (this.loadingProgress < 60) {
-            this.loadingMessage = 'Scraping job listings...'
-          } else if (this.loadingProgress < 90) {
-            this.loadingMessage = 'Processing results...'
-          }
-        }
-      }, 1000)
-      
-      try {
-        const response = await fetch('/api/search', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            searchTerm: this.searchTerm.trim()
-          })
-        })
-        
-        clearInterval(progressInterval)
-        this.loadingProgress = 100
-        this.loadingMessage = 'Calculating lead scores...'
-        
-        if (!response.ok) {
-          throw new Error('Search failed')
-        }
-        
-        const data = await response.json()
-        
-        // Add hotness scoring to each job
-        this.jobs = data.jobs.map(job => this.calculateHotness(job))
-        this.currentSearchId = data.searchId
-        
-        // Refresh search history
-        await this.loadSearchHistory()
-        
-        setTimeout(() => {
-          this.isLoading = false
-        }, 500)
-        
-      } catch (error) {
-        console.error('Search error:', error)
-        clearInterval(progressInterval)
-        this.isLoading = false
-        // Show error state - you could add error handling UI here
-      }
+      // Show hackathon modal instead of actually searching
+      this.showHackathonModal = true
     },
     
     calculateHotness(job) {
@@ -882,6 +894,15 @@ export default {
       this.contacts = []
       this.contactError = null
       this.contactsCached = false
+    },
+    
+    closeHackathonModal() {
+      this.showHackathonModal = false
+    },
+    
+    async loadPreviousSearchFromModal(searchId) {
+      this.showHackathonModal = false
+      await this.loadPreviousSearch(searchId)
     },
     
     formatDescription(description) {
