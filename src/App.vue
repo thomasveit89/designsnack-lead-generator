@@ -727,7 +727,7 @@ export default {
     async loadSearchHistory() {
       try {
         console.log('Loading search history...')
-        const response = await fetch('/api/search-history')
+        const response = await fetch('./data/search-history.json')
         if (response.ok) {
           const data = await response.json()
           this.searchHistory = data.searches || []
@@ -747,7 +747,7 @@ export default {
       this.showHistory = false
       
       try {
-        const response = await fetch(`/api/search/${searchId}`)
+        const response = await fetch(`./data/searches/${searchId}.json`)
         if (response.ok) {
           const data = await response.json()
           
